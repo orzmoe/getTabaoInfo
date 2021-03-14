@@ -29,4 +29,9 @@ jobs:
     # 输出IP
       - name: IP
         run: sudo curl ifconfig.me
-
+      - uses: actions/checkout@v2
+      - name: Set up Go 1.12
+        uses: actions/setup-go@v1
+        with:
+          go-version: '^1.13.1'
+      - run: go run main.go
