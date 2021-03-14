@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 )
 
 func main() {
@@ -59,7 +63,13 @@ func GetBabyInfo(id, babyType string) (BabyInfoResp, error) {
 		if len(images) > 0 {
 			rgp = regexp.MustCompile(`class="shop-name" title=".+?">(.+?)<`)
 			shops := rgp.FindStringSubmatch(html)
-			babyInfoResp.ShopName = shops[1]
+			shopName, err := GbkToUtf8(shops[1])
+			if err != nil {
+				babyInfoResp.ShopName = shops[1]
+			} else {
+				babyInfoResp.ShopName = shopName
+			}
+
 			babyInfoResp.Image = images[1]
 			babyInfoResp.Type = 1
 			return babyInfoResp, nil
@@ -98,4 +108,13 @@ type BabyInfoResp struct {
 	ShopName string `json:"shop_name"`
 	Image    string `json:"image"`
 	Type     int    `json:"type"`
+}
+
+func GbkToUtf8(s string) (string, error) {
+	reader := transform.NewReader(bytes.NewReader([]byte(s)), simplifiedchinese.GBK.NewDecoder())
+	d, e := ioutil.ReadAll(reader)
+	if e != nil {
+		return "", e
+	}
+	return string(d), nil
 }
