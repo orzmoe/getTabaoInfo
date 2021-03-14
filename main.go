@@ -56,7 +56,7 @@ func getHtml(_url string, isMobile bool) (string, error) {
 func GetBabyInfo(id, babyType string) (BabyInfoResp, error) {
 	babyInfoResp := BabyInfoResp{}
 	if babyType == "1" || babyType == "0" {
-		_url := "https://detail.m.tmall.hk/item.htm?id=" + id + "&toSite=main"
+		_url := "https://detail.m.tmall.hk/item.htm?id=" + id + "&toSite=main&sku_properties=29112:97926"
 		html, err := getHtml(_url, true)
 		if err != nil {
 			return babyInfoResp, err
