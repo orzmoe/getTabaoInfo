@@ -15,7 +15,10 @@ import (
 )
 
 func main() {
-
+	environ := os.Environ()
+	for i := range environ {
+		fmt.Println(environ[i])
+	}
 	info, err := GetBabyInfo(os.Getenv("BABY_ID"), "0")
 	if err != nil {
 		fmt.Println(err.Error())
