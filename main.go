@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -15,7 +16,7 @@ import (
 
 func main() {
 
-	info, err := GetBabyInfo("602688445873", "0")
+	info, err := GetBabyInfo(os.Getenv("BABY_ID"), "0")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
