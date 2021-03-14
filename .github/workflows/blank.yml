@@ -18,10 +18,6 @@ jobs:
     environment: Production
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # 输出IP
-      - name: IP
-        run: sudo curl ifconfig.me
-      - uses: actions/checkout@v2
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
