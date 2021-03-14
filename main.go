@@ -4,17 +4,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 func main() {
-	html, err := getHtml()
+
+	info, err := GetBabyInfo("636880836537", "0")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(html)
+	fmt.Println(info)
 }
-func getHtml() (string, error) {
-	_url := "https://detail.m.tmall.com/item.htm?id=636880836537"
+
+func getHtml(_url string) (string, error) {
+
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", _url, nil)
 	if err != nil {
@@ -33,4 +38,57 @@ func getHtml() (string, error) {
 		return "", err
 	}
 	return string(content), nil
+}
+func GetBabyInfo(id, babyType string) (BabyInfoResp, error) {
+	babyInfoResp := BabyInfoResp{}
+	if babyType == "1" || babyType == "0" {
+		_url := "https://detail.m.tmall.com/item.htm?id=" + id
+		html, err := getHtml(_url)
+		if err != nil {
+			return babyInfoResp, err
+		}
+		rgp := regexp.MustCompile(`og:image" content="(.+?)"`)
+		images := rgp.FindStringSubmatch(html)
+		if len(images) > 0 {
+			rgp = regexp.MustCompile(`class="shop-name" title=".+?">(.+?)<`)
+			shops := rgp.FindStringSubmatch(html)
+			babyInfoResp.ShopName = shops[1]
+			babyInfoResp.Image = images[1]
+			babyInfoResp.Type = 1
+			return babyInfoResp, nil
+		}
+	}
+	if babyType == "2" || babyType == "0" {
+		_url := "https://item.taobao.com/item.htm?ft=t&id=" + id
+		html, err := getHtml(_url)
+		if err != nil {
+			return babyInfoResp, err
+		}
+		rgp := regexp.MustCompile(`pic.+?: '(.+?)',`)
+		images := rgp.FindStringSubmatch(html)
+		if len(images) > 0 {
+			rgp = regexp.MustCompile(`shopName.+?: '(.+?)',`)
+			shops := rgp.FindStringSubmatch(html)
+			v, _ := zhToUnicode([]byte(shops[1]))
+
+			babyInfoResp.ShopName = string(v)
+			babyInfoResp.Image = images[1]
+			babyInfoResp.Type = 2
+		}
+	}
+	return babyInfoResp, nil
+}
+
+func zhToUnicode(raw []byte) ([]byte, error) {
+	str, err := strconv.Unquote(strings.Replace(strconv.Quote(string(raw)), `\\u`, `\u`, -1))
+	if err != nil {
+		return nil, err
+	}
+	return []byte(str), nil
+}
+
+type BabyInfoResp struct {
+	ShopName string `json:"shop_name"`
+	Image    string `json:"image"`
+	Type     int    `json:"type"`
 }
