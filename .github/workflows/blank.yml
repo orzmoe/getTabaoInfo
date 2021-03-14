@@ -22,6 +22,7 @@ jobs:
         uses: actions/setup-go@v1
         with:
           go-version: '^1.13.1'
+      - uses: actions/checkout@v2
       - name: 'Run APP'
         env:
           BABY_ID: ${{ secrets.BABY_ID }}
