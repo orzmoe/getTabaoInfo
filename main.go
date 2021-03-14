@@ -18,14 +18,21 @@ func main() {
 	fmt.Println(info)
 }
 
-func getHtml(_url string) (string, error) {
+func getHtml(_url string, isMobile bool) (string, error) {
 
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", _url, nil)
 	if err != nil {
 		return "", err
 	}
-	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36")
+	//Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1
+	if isMobile {
+		request.Header.Set("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1")
+
+	} else {
+		request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36")
+
+	}
 	request.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
 	resp, err := client.Do(request) //发送请求
 	if err != nil {
@@ -43,7 +50,7 @@ func GetBabyInfo(id, babyType string) (BabyInfoResp, error) {
 	babyInfoResp := BabyInfoResp{}
 	if babyType == "1" || babyType == "0" {
 		_url := "https://detail.m.tmall.com/item.htm?id=" + id
-		html, err := getHtml(_url)
+		html, err := getHtml(_url, true)
 		if err != nil {
 			return babyInfoResp, err
 		}
@@ -60,7 +67,7 @@ func GetBabyInfo(id, babyType string) (BabyInfoResp, error) {
 	}
 	if babyType == "2" || babyType == "0" {
 		_url := "https://item.taobao.com/item.htm?ft=t&id=" + id
-		html, err := getHtml(_url)
+		html, err := getHtml(_url, false)
 		if err != nil {
 			return babyInfoResp, err
 		}
