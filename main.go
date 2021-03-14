@@ -38,6 +38,9 @@ func getHtml(_url string, isMobile bool) (string, error) {
 
 	}
 	request.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
 	resp, err := client.Do(request) //发送请求
 	if err != nil {
 		return "", err
